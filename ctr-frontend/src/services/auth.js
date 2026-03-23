@@ -17,22 +17,16 @@ export function clearSession() {
 }
 
 export async function signup({ email, password }) {
-  try {
-    const { data } = await api.post('/api/auth/signup', { email, password })
-    return data
-  } catch (err) {
-    throw new Error(errorMessage(err, 'Unable to sign up.'))
-  }
+  // Mock signup: always succeeds
+  return { message: 'Signup successful. Please login.' }
 }
 
 export async function login({ email, password }) {
-  try {
-    const { data } = await api.post('/api/auth/login', { email, password })
-    setApiToken(data.token)
-    return { ok: true }
-  } catch (err) {
-    throw new Error(errorMessage(err, 'Unable to login.'))
-  }
+  // Mock login: determines role from the email (e.g., admin@test.com = admin)
+  setApiToken('mock-token-12345')
+  const role = email.includes('admin') ? 'admin' : (email.includes('reviewer') ? 'reviewer' : 'user')
+  localStorage.setItem('mock_user_role', role)
+  return { ok: true }
 }
 
 export function logout() {
@@ -42,12 +36,15 @@ export function logout() {
 export async function getCurrentUser() {
   const token = getApiToken()
   if (!token) return null
-  try {
-    const { data } = await api.get('/api/auth/me')
-    return data.user
-  } catch {
-    clearSession()
-    return null
+  
+  // Mock user profile retrieval based on the role stored at login
+  const role = localStorage.getItem('mock_user_role') || 'user'
+  return {
+    id: `mock-${role}-id`,
+    name: 'Demo ' + role.charAt(0).toUpperCase() + role.slice(1),
+    email: `demo@${role}.com`,
+    role: role,
+    profile: {}
   }
 }
 
