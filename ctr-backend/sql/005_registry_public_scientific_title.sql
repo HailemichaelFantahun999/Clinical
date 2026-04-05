@@ -1,0 +1,200 @@
+-- Map publicTitle / scientificTitle / healthConditions into trial_registry_forms
+-- and sync collaborators from flat fields when JSON array is empty.
+
+ALTER TABLE trial_registry_forms
+  ADD COLUMN IF NOT EXISTS scientific_title TEXT NOT NULL DEFAULT '';
+
+CREATE OR REPLACE FUNCTION sync_trial_registry_form_from_trials()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO trial_registry_forms (
+    trial_id,
+    title,
+    scientific_title,
+    brief_summary,
+    trial_design,
+    trial_phase,
+    diseases,
+    purpose,
+    anticipated_start_date,
+    actual_start_date,
+    last_follow_up_date,
+    completion_date,
+    target_participants,
+    project_area,
+    recruitment_status,
+    publication_url,
+    acronym,
+    final_participants,
+    has_secondary_id,
+    secondary_ids,
+    secondary_id_issuing_authority,
+    intervention_assignment,
+    allocation,
+    allocation_concealment,
+    masking_type,
+    masking_roles,
+    interventions,
+    outcomes,
+    recruitment_centres,
+    ethics_approvals,
+    funding_sources,
+    sponsors,
+    collaborators,
+    contact_persons,
+    inclusion_criteria,
+    exclusion_criteria,
+    min_age,
+    max_age,
+    sex,
+    age_groups,
+    min_age_unit,
+    max_age_unit,
+    ipd_description,
+    ipd_additional_docs,
+    ipd_sharing_timeframe,
+    ipd_access_criteria,
+    ipd_url,
+    results_available,
+    results_summary_docs,
+    results_first_publication_date,
+    results_urls,
+    results_protocol_link,
+    updated_at
+  )
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.data->>'publicTitle', NEW.data->>'title', ''),
+    COALESCE(NEW.data->>'scientificTitle', ''),
+    COALESCE(NEW.data->>'briefSummary', ''),
+    COALESCE(NEW.data->>'trialDesign', ''),
+    COALESCE(NEW.data->>'trialPhase', ''),
+    COALESCE(
+      (
+        SELECT string_agg(x, ', ')
+        FROM jsonb_array_elements_text(COALESCE(NEW.data->'healthConditions', '[]'::jsonb)) AS t(x)
+      ),
+      COALESCE(NEW.data->>'diseases', '')
+    ),
+    COALESCE(NEW.data->>'purpose', ''),
+    COALESCE(NEW.data->>'anticipatedStartDate', ''),
+    COALESCE(NEW.data->>'actualStartDate', ''),
+    COALESCE(NEW.data->>'lastFollowUpDate', ''),
+    COALESCE(NEW.data->>'completionDate', ''),
+    COALESCE(NEW.data->>'targetParticipants', ''),
+    COALESCE(NEW.data->>'projectArea', ''),
+    COALESCE(NEW.data->>'recruitmentStatus', ''),
+    COALESCE(NEW.data->>'publicationUrl', ''),
+    COALESCE(NEW.data->>'acronym', ''),
+    COALESCE(NEW.data->>'finalParticipants', ''),
+    COALESCE(NEW.data->>'hasSecondaryId', ''),
+    COALESCE(NEW.data->>'secondaryIds', ''),
+    COALESCE(NEW.data->>'secondaryIdIssuingAuthority', ''),
+    COALESCE(NEW.data->>'interventionAssignment', ''),
+    COALESCE(NEW.data->>'allocation', ''),
+    COALESCE(NEW.data->>'allocationConcealment', ''),
+    COALESCE(NEW.data->>'maskingType', ''),
+    COALESCE(NEW.data->'maskingRoles', '[]'::jsonb),
+    COALESCE(NEW.data->'interventions', '[]'::jsonb),
+    COALESCE(NEW.data->'outcomes', '[]'::jsonb),
+    COALESCE(NEW.data->'recruitmentCentres', '[]'::jsonb),
+    COALESCE(NEW.data->'ethicsApprovals', '[]'::jsonb),
+    COALESCE(NEW.data->'fundingSources', '[]'::jsonb),
+    COALESCE(NEW.data->'sponsors', '[]'::jsonb),
+    COALESCE(
+      NULLIF(NEW.data->'collaborators', '[]'::jsonb),
+      CASE
+        WHEN (NEW.data->>'hasCollaborator') = 'Yes' THEN
+          jsonb_build_array(
+            jsonb_build_object(
+              'name', NEW.data->>'collaboratorName',
+              'address', NEW.data->>'collaboratorAddress',
+              'city', NEW.data->>'collaboratorCity',
+              'postalCode', NEW.data->>'collaboratorPostalCode',
+              'country', NEW.data->>'collaboratorCountry'
+            )
+          )
+        ELSE '[]'::jsonb
+      END
+    ),
+    COALESCE(NEW.data->'contactPersons', '[]'::jsonb),
+    COALESCE(NEW.data->>'inclusionCriteria', ''),
+    COALESCE(NEW.data->>'exclusionCriteria', ''),
+    COALESCE(NEW.data->>'minAge', ''),
+    COALESCE(NEW.data->>'maxAge', ''),
+    COALESCE(NEW.data->>'sex', ''),
+    COALESCE(NEW.data->'ageGroups', '[]'::jsonb),
+    COALESCE(NEW.data->>'minAgeUnit', 'years'),
+    COALESCE(NEW.data->>'maxAgeUnit', 'years'),
+    COALESCE(NEW.data->>'ipdDescription', ''),
+    COALESCE(NEW.data->'ipdAdditionalDocs', '[]'::jsonb),
+    COALESCE(NEW.data->>'ipdSharingTimeframe', ''),
+    COALESCE(NEW.data->>'ipdAccessCriteria', ''),
+    COALESCE(NEW.data->>'ipdUrl', ''),
+    COALESCE(NEW.data->>'resultsAvailable', ''),
+    COALESCE(NEW.data->'resultsSummaryDocs', '[]'::jsonb),
+    COALESCE(NEW.data->>'resultsFirstPublicationDate', ''),
+    COALESCE(NEW.data->'resultsUrls', '[]'::jsonb),
+    COALESCE(NEW.data->>'resultsProtocolLink', ''),
+    now()
+  )
+  ON CONFLICT (trial_id)
+  DO UPDATE SET
+    title = EXCLUDED.title,
+    scientific_title = EXCLUDED.scientific_title,
+    brief_summary = EXCLUDED.brief_summary,
+    trial_design = EXCLUDED.trial_design,
+    trial_phase = EXCLUDED.trial_phase,
+    diseases = EXCLUDED.diseases,
+    purpose = EXCLUDED.purpose,
+    anticipated_start_date = EXCLUDED.anticipated_start_date,
+    actual_start_date = EXCLUDED.actual_start_date,
+    last_follow_up_date = EXCLUDED.last_follow_up_date,
+    completion_date = EXCLUDED.completion_date,
+    target_participants = EXCLUDED.target_participants,
+    project_area = EXCLUDED.project_area,
+    recruitment_status = EXCLUDED.recruitment_status,
+    publication_url = EXCLUDED.publication_url,
+    acronym = EXCLUDED.acronym,
+    final_participants = EXCLUDED.final_participants,
+    has_secondary_id = EXCLUDED.has_secondary_id,
+    secondary_ids = EXCLUDED.secondary_ids,
+    secondary_id_issuing_authority = EXCLUDED.secondary_id_issuing_authority,
+    intervention_assignment = EXCLUDED.intervention_assignment,
+    allocation = EXCLUDED.allocation,
+    allocation_concealment = EXCLUDED.allocation_concealment,
+    masking_type = EXCLUDED.masking_type,
+    masking_roles = EXCLUDED.masking_roles,
+    interventions = EXCLUDED.interventions,
+    outcomes = EXCLUDED.outcomes,
+    recruitment_centres = EXCLUDED.recruitment_centres,
+    ethics_approvals = EXCLUDED.ethics_approvals,
+    funding_sources = EXCLUDED.funding_sources,
+    sponsors = EXCLUDED.sponsors,
+    collaborators = EXCLUDED.collaborators,
+    contact_persons = EXCLUDED.contact_persons,
+    inclusion_criteria = EXCLUDED.inclusion_criteria,
+    exclusion_criteria = EXCLUDED.exclusion_criteria,
+    min_age = EXCLUDED.min_age,
+    max_age = EXCLUDED.max_age,
+    sex = EXCLUDED.sex,
+    age_groups = EXCLUDED.age_groups,
+    min_age_unit = EXCLUDED.min_age_unit,
+    max_age_unit = EXCLUDED.max_age_unit,
+    ipd_description = EXCLUDED.ipd_description,
+    ipd_additional_docs = EXCLUDED.ipd_additional_docs,
+    ipd_sharing_timeframe = EXCLUDED.ipd_sharing_timeframe,
+    ipd_access_criteria = EXCLUDED.ipd_access_criteria,
+    ipd_url = EXCLUDED.ipd_url,
+    results_available = EXCLUDED.results_available,
+    results_summary_docs = EXCLUDED.results_summary_docs,
+    results_first_publication_date = EXCLUDED.results_first_publication_date,
+    results_urls = EXCLUDED.results_urls,
+    results_protocol_link = EXCLUDED.results_protocol_link,
+    updated_at = now();
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+UPDATE trials SET data = data;

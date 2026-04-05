@@ -1,0 +1,64 @@
+import React from 'react'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import logoImage from '../assets/images/logo.png'
+
+export default function PublicLayout() {
+  const location = useLocation()
+  const inTrialArea = location.pathname.startsWith('/trials')
+  const inDiagramArea = location.pathname.startsWith('/trials/diagrams')
+
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-soft">
+              <img src={logoImage} alt="ECTR logo" className="h-full w-full object-contain" />
+            </div>
+            <div>
+              <Link to="/" className="text-sm font-semibold text-slate-900">
+                ECTR
+              </Link>
+              <p className="text-xs text-slate-500">Ethiopian Clinical Trial Registry</p>
+            </div>
+          </div>
+          <nav className="flex items-center gap-2">
+            <Link
+              to="/trials"
+              className={`rounded-full px-3 py-1 text-xs font-medium ${inTrialArea && !inDiagramArea ? 'bg-slate-900 text-slate-50' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Search trials
+            </Link>
+            <Link
+              to="/trials/diagrams"
+              className={`rounded-full px-3 py-1 text-xs font-medium ${inDiagramArea ? 'bg-slate-900 text-slate-50' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              Trial diagrams
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-full px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-soft hover:bg-indigo-700"
+            >
+              Register as user
+            </Link>
+          </nav>
+        </div>
+      </header>
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <footer className="border-t border-slate-200 bg-white/70">
+        <div className="mx-auto max-w-6xl px-4 py-3 text-xs text-slate-500 lg:px-6">
+          Copyright {new Date().getFullYear()} ECTR - Ethiopian Clinical Trial Registry
+        </div>
+      </footer>
+    </div>
+  )
+}
+

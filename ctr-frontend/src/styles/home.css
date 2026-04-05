@@ -1,0 +1,379 @@
+.home-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #e8f0ef;
+  color: #0f172a;
+}
+
+.home-bg {
+  position: absolute;
+  inset: -2rem;
+  z-index: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 220ms ease, background-position 220ms ease;
+  filter: saturate(1.04) contrast(1.02) brightness(0.9);
+}
+
+.home-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(135deg, rgba(248, 250, 252, 0.88), rgba(248, 250, 252, 0.64)),
+    radial-gradient(circle at 14% 18%, rgba(20, 184, 166, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 16%, rgba(14, 165, 233, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5));
+}
+
+.home-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.08;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.24) 0.5px, transparent 0.5px);
+  background-size: 10px 10px;
+}
+
+.home-graphic,
+.home-orbit,
+.home-gridline,
+.home-signal {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.home-graphic {
+  border-radius: 999px;
+  filter: blur(4px);
+}
+
+.home-graphic-left {
+  top: 10%;
+  left: -8%;
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.18), rgba(20, 184, 166, 0));
+  animation: homeFloat 15s ease-in-out infinite;
+}
+
+.home-graphic-right {
+  right: -4%;
+  bottom: 8%;
+  width: 30rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.14), rgba(14, 165, 233, 0));
+  animation: homeFloat 18s ease-in-out infinite reverse;
+}
+
+.home-orbit {
+  top: 8%;
+  right: 10%;
+  width: 20rem;
+  height: 20rem;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 50%;
+  animation: homeSpin 28s linear infinite;
+}
+
+.home-gridline {
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  background-size: 5.5rem 5.5rem;
+  mask-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.55), transparent);
+}
+
+.home-signal {
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  height: 5.5rem;
+  opacity: 0.42;
+}
+
+.home-signal svg {
+  width: 100%;
+  height: 100%;
+}
+
+.home-signal path {
+  fill: none;
+  stroke: rgba(15, 118, 110, 0.7);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14 10;
+  animation: homeDash 18s linear infinite;
+}
+
+.home-content {
+  position: relative;
+  z-index: 3;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  align-self: flex-start;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #0f766e;
+  box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.45);
+  animation: homePulse 1.8s infinite;
+}
+
+.home-hero {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: end;
+}
+
+.home-brand-column {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.home-logo-wrap {
+  width: 7.5rem;
+  height: 7.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62));
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 18px 40px -28px rgba(15, 23, 42, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.home-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+.home-copy {
+  max-width: 43rem;
+}
+
+.home-title {
+  margin: 0;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.92;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  color: #0f172a;
+  text-wrap: balance;
+}
+
+.home-subtitle {
+  margin-top: 1rem;
+  max-width: 42rem;
+  color: #334155;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  line-height: 1.75;
+}
+
+.home-subtitle-strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 1.02em;
+}
+
+.home-nav-ribbon {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.22));
+  backdrop-filter: blur(8px);
+}
+
+.home-login-link,
+.home-ribbon-link {
+  text-decoration: none;
+  color: inherit;
+  padding: 1.15rem 0;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.home-login-link:hover,
+.home-ribbon-link:hover {
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.home-login-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: fit-content;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.home-link-arrow {
+  color: #0f766e;
+  transition: transform 180ms ease;
+}
+
+.home-login-link:hover .home-link-arrow {
+  transform: translateX(4px);
+}
+
+.home-ribbon-link {
+  display: grid;
+  gap: 0.3rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.home-ribbon-label {
+  font-size: 1.5rem;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.home-ribbon-copy {
+  max-width: 34rem;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.home-ribbon-link-search .home-ribbon-label {
+  color: #0f766e;
+}
+
+.home-ribbon-link-register .home-ribbon-label {
+  color: #1d4ed8;
+}
+
+@media (min-width: 920px) {
+  .home-content {
+    padding: 1.5rem 1.5rem 2.5rem;
+  }
+
+  .home-hero {
+    grid-template-columns: minmax(0, 1.15fr) minmax(24rem, 0.85fr);
+    gap: 3rem;
+  }
+
+  .home-nav-ribbon {
+    align-self: stretch;
+    padding-left: 1.5rem;
+  }
+
+  .home-ribbon-link:first-of-type {
+    border-top: 0;
+  }
+}
+
+@media (max-width: 919px) {
+  .home-brand-column {
+    grid-template-columns: 1fr;
+  }
+
+  .home-nav-ribbon {
+    padding-top: 0.2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .home-content {
+    padding: 1rem 0.95rem 1.6rem;
+  }
+
+  .home-hero {
+    gap: 1.5rem;
+  }
+
+  .home-logo-wrap {
+    width: 6.2rem;
+    height: 6.2rem;
+  }
+
+  .home-ribbon-label {
+    font-size: 1.25rem;
+  }
+
+  .home-signal {
+    bottom: 5%;
+  }
+}
+
+@keyframes homePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.34);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 10px rgba(15, 118, 110, 0);
+  }
+}
+
+@keyframes homeFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -16px, 0);
+  }
+}
+
+@keyframes homeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes homeDash {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
